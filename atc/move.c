@@ -237,5 +237,5 @@ static bool too_close(const struct Plane * p1, const struct Plane * p2, unsigned
 
 static int dir_deg(int d)
 {
-    return (d > 0 && d < 8) ? d * 45 : -1;
+    return (d >= 0 && d < 8) ? d * 45 : -1;
 }
