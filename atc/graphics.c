@@ -32,6 +32,7 @@ static WINDOW* _wplanes = NULL;
 //----------------------------------------------------------------------
 
 static void draw_line (WINDOW *w, int x, int y, int lx, int ly, char c);
+static void draw_radar_border(void);
 static void draw_radar (void);
 static void draw_plane_list (void);
 static void draw_credit_box (void);
@@ -42,7 +43,7 @@ static void draw_command_box (void);
 void init_gr (void)
 {
     initialize_curses();
-    unsigned radarh = _sp->height, radarw = _sp->width*2-1,
+    unsigned radarh = _sp->height, radarw = _sp->width*2,
 	scry = LINES - (MAXPLANES+1 + INPUT_LINES),
 	scrx = (COLS - (radarw + PLANE_COLS))/2;
     _wradar = newwin (radarh, radarw, scry, scrx);
@@ -78,12 +79,26 @@ static void draw_line (WINDOW * w, int x, int y, int lx, int ly, char c)
     }
 }
 
+static void draw_radar_border(void)
+{
+    mvwvline(_wradar, 0, 0, ACS_ULCORNER, 1);
+    mvwvline(_wradar, 1, 0, 0, _sp->height-2);
+    mvwhline(_wradar, _sp->height - 1, 0, ACS_LLCORNER, 1);
+    mvwhline(_wradar, _sp->height - 1, 1, 0, ((_sp->width - 2) * 2) + 1);
+    mvwhline(_wradar, 0, 1, 0, ((_sp->width - 2) * 2) + 1);
+    mvwhline(_wradar, 0, (_sp->width -1) * 2, ACS_URCORNER, 1);
+    mvwvline(_wradar, 1, (_sp->width -1) * 2, 0, _sp->height - 2);
+    mvwvline(_wradar, _sp->height - 1, (_sp->width -1) * 2, ACS_LRCORNER, 1);
+}
+
 static void draw_radar (void)
 {
     // Draw radar screen with map
     werase (_wradar);
     wattr_set (_wradar, A_NORMAL, color_RadarBackground, NULL);
-    box (_wradar, 0, 0);
+    
+    draw_radar_border();
+
     for (unsigned i = 1; i < _sp->height-1u; ++i)
 	for (unsigned j = 1; j < _sp->width-1u; ++j)
 	    mvwaddch (_wradar, i, j*2, C_BACKROUND);
