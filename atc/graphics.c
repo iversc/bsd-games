@@ -81,11 +81,7 @@ static void draw_line (WINDOW * w, int x, int y, int lx, int ly, char c)
 
 static void draw_radar_border(void)
 {
-    mvwvline(_wradar, 0, 0, ACS_ULCORNER, 1);
-    mvwvline(_wradar, 1, 0, 0, _sp->height-2);
-    mvwhline(_wradar, _sp->height - 1, 0, ACS_LLCORNER, 1);
-    mvwhline(_wradar, _sp->height - 1, 1, 0, ((_sp->width - 2) * 2) + 1);
-    mvwhline(_wradar, 0, 1, 0, ((_sp->width - 2) * 2) + 1);
+    wborder(_wradar, 0, ' ', 0, 0, 0, ' ', 0, ' ');
     mvwhline(_wradar, 0, (_sp->width -1) * 2, ACS_URCORNER, 1);
     mvwvline(_wradar, 1, (_sp->width -1) * 2, 0, _sp->height - 2);
     mvwvline(_wradar, _sp->height - 1, (_sp->width -1) * 2, ACS_LRCORNER, 1);
