@@ -32,7 +32,6 @@ static WINDOW* _wplanes = NULL;
 //----------------------------------------------------------------------
 
 static void draw_line (WINDOW *w, int x, int y, int lx, int ly, char c);
-static void draw_radar_border(void);
 static void draw_radar (void);
 static void draw_plane_list (void);
 static void draw_credit_box (void);
@@ -43,7 +42,7 @@ static void draw_command_box (void);
 void init_gr (void)
 {
     initialize_curses();
-    unsigned radarh = _sp->height, radarw = _sp->width*2,
+    unsigned radarh = _sp->height, radarw = _sp->width*2-1,
 	scry = LINES - (MAXPLANES+1 + INPUT_LINES),
 	scrx = (COLS - (radarw + PLANE_COLS))/2;
     _wradar = newwin (radarh, radarw, scry, scrx);
@@ -79,21 +78,11 @@ static void draw_line (WINDOW * w, int x, int y, int lx, int ly, char c)
     }
 }
 
-static void draw_radar_border(void)
-{
-    wborder(_wradar, 0, ' ', 0, 0, 0, ' ', 0, ' ');
-    mvwhline(_wradar, 0, (_sp->width -1) * 2, ACS_URCORNER, 1);
-    mvwvline(_wradar, 1, (_sp->width -1) * 2, 0, _sp->height - 2);
-    mvwvline(_wradar, _sp->height - 1, (_sp->width -1) * 2, ACS_LRCORNER, 1);
-}
-
 static void draw_radar (void)
 {
     // Draw radar screen with map
     werase (_wradar);
     wattr_set (_wradar, A_NORMAL, color_RadarBackground, NULL);
-    
-    draw_radar_border();
 
     for (unsigned i = 1; i < _sp->height-1u; ++i)
 	for (unsigned j = 1; j < _sp->width-1u; ++j)
@@ -104,9 +93,6 @@ static void draw_radar (void)
     wcolor_set (_wradar, color_Beacons, NULL);
     for (unsigned i = 0; i < _sp->num_beacons; ++i)
 	mvwprintw (_wradar, _sp->beacon[i].y, _sp->beacon[i].x*2, "%c%u", C_BEACON, i);
-    wcolor_set (_wradar, color_Exits, NULL);
-    for (unsigned i = 0; i < _sp->num_exits; ++i)
-	mvwprintw (_wradar, _sp->exit[i].y, _sp->exit[i].x*2, "%u", i);
     wcolor_set (_wradar, color_Airports, NULL);
     for (unsigned i = 0; i < _sp->num_airports; ++i)
 	mvwprintw (_wradar, _sp->airport[i].y, _sp->airport[i].x * 2, "%c%u", "^?>?v?<?"[_sp->airport[i].dir], i);
@@ -120,6 +106,12 @@ static void draw_radar (void)
 	if (p->status == S_MARKED)
 	    wstandend (_wradar);
     }
+
+    box(_wradar, 0, 0);
+    wcolor_set (_wradar, color_Exits, NULL);
+    for (unsigned i = 0; i < _sp->num_exits; ++i)
+	mvwprintw (_wradar, _sp->exit[i].y, _sp->exit[i].x*2, "%u", i);
+
     wnoutrefresh (_wradar);
 }
 
